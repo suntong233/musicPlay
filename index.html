@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .test {
+            width: 600px;
+            height: 300px;
+            background-color: rgb(108, 238, 147);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            user-select: none;
+            width: 400px;
+            height: 600px;
+            background-color: rgb(243, 243, 243);
+            margin: 30px auto;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .searchIpt {
+            appearance: none;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            color: #666;
+            border: 1px solid #ccc;
+        }
+
+        .searchIptbox {
+            overflow: auto;
+        }
+
+        .searchIptbox::-webkit-scrollbar {
+            display: none;
+        }
+
+        .musicItem {
+            height: 80px;
+            margin-top: 10px;
+            border-radius: 4px;
+            background-color: rgb(250, 244, 244);
+            box-shadow: 0 0 3px rgb(206, 207, 209);
+            display: flex;
+            cursor: pointer;
+            justify-content: space-evenly;
+            padding: 5px;
+        }
+
+        .imgBox {
+            width: 76px;
+        }
+
+        .contentBox {
+            padding-left: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+
+        .imgItem {
+            width: 100%;
+            height: 100%;
+        }
+
+        .contentTitle {
+            font-size: 18px;
+            color: rgb(90, 90, 90);
+        }
+
+        .contentAuthor {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .motai {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+        }
+        .myaudio{
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <audio class="myaudio" autoplay controls :src="musicUrl"></audio>
+            <input class="searchIpt" v-model="url" @input="handleSearch" type="text">
+            <div class="searchIptbox">
+                <div @click="openMusic(item.url)" class="musicItem" v-for="item in info">
+                    <div class="imgBox">
+                        <img class="imgItem" :src="item.pic">
+                    </div>
+                    <div class="contentBox">
+                        <div class="contentTitle">{{ item.title }}</div>
+                        <div class="contentAuthor">{{ item.author }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="motai">
+
+        </div>
+    </div>
+    <script>
+        function debounce(fn, wait = 200) {
+            let timer
+            return function () {
+                let that = this
+                let arg = arguments
+                clearTimeout(timer)
+                timer = setTimeout(() => {
+                    fn.apply(that, arg)
+                }, wait)
+            }
+        }
+        let app = new Vue({
+            el: '#app',
+            data: {
+                isshow: false,
+                musicUrl: '',
+                url: '',
+                info: ''
+            },
+            mounted () {
+                this.url = '鸡你太美'  
+                this.axiosFun()
+            },
+            methods: {
+                show() {
+                    this.isshow = !this.isshow
+                },
+                openMusic(url) {
+                    this.musicUrl = url
+                    console.log(this.musicUrl)
+                    this.show()
+                },
+                axiosFun() {
+                    axios
+                        .post(`https://api.apiopen.top/searchMusic?name=${this.url}`)
+                        .then(response => {
+                            this.info = response.data.result
+                            console.log(this.info)
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+                handleSearch: debounce(function () {
+                    this.axiosFun()
+                }, 500)
+            }
+        })
+    </script>
+</body>
+
+</html>
